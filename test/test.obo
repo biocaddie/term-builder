@@ -1,0 +1,15 @@
+format-version: 1.2
+date: 30:07:2015 15:47
+saved-by: soysal
+auto-generated-by: OBO-Edit 2.3.1
+
+[Term]
+id: ID:0000000
+name: OurClass
+def: "A new \"class\" fdsf" [ID:0000123]
+synonym: "Don't \"bother\" any" RELATED [ID:0000124]
+synonym: "Easy synonyms" NARROW []
+synonym: "Even easier synonym"
+xref: UMLS:000000111 "this \"is\" one"
+creation_date: 2015-07-30T15:45:55Z
+

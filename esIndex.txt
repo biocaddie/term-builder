@@ -1,0 +1,10 @@
+--host
+192.168.33.10
+--port
+9200
+--constr
+mysql+mysqlconnector://root:@localhost:3306/umls15aa?use_unicode=1&charset=utf8
+--index
+library
+--doctype
+term

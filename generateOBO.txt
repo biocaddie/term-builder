@@ -1,0 +1,8 @@
+--constr
+mysql+mysqlconnector://root:@localhost:3306/umls15aa?use_unicode=1&charset=utf8
+--filename
+umls.obo
+--offset
+0
+--count
+500
