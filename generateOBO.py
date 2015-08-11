@@ -71,15 +71,17 @@ IGNORE_REL = [
 
 
 def addSynIfNotExists(term, type, code, sab, name=''):
+    # String comparisons are case insensitive
+    lname = name.lower()
     for syn in term['synonym']:
         if syn['type'] == type and    \
            syn['code'] == code and    \
            syn['sab'] == sab and      \
-           syn['name'] == name:
+           syn['name'].lower() == lname:
             return
 
     if sab == 'UMLS' and \
-       term['name'] == name and \
+       term['name'].lower() == lname and \
        term['id'] == code:
         return
 
@@ -96,17 +98,18 @@ def addSynonym(term, c):
 
 
 def addSynonyms(term, name, cc):
-    term['syns'] = [name]
+    term['syns'] = [name.lower()]
     # select mrconso where cui=:cui and lui<>:lui
     for c in cc:
         code = makeCode(c['SAB'], c['SCUI'] or c['CODE'])
+        ustr = c['STR'].lower()
 
         if withAltId and code not in term['alt_id']:
             term['alt_id'].append(code)
 
-        if not c['STR'] in term['syns']:
+        if not ustr in term['syns']:
             addSynonym(term, c)
-            term['syns'].append(c['STR'])
+            term['syns'].append(ustr)
 
         addXref(term, c)
 
