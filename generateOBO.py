@@ -4,7 +4,7 @@
 Creates OBO file from UMLS database tables.
 
 Created on   : 2015-07-18 ( Ergin Soysal )
-Last modified: Aug 03, 2015, Mon 15:03:36 -0500
+Last modified: Aug 11, 2015, Tue 09:19:04 -0500
 """
 import sys
 import argparse
@@ -155,6 +155,10 @@ def addRelationships(term, cui):
             # (no concept for cui???)
             logging.warning('No concept for CUI %s (%s) in addRelationships' %
                             (cui1, sab))
+            continue
+        elif c['supp']:
+            logging.warning('Skipping relasionship with suppressible concept '
+                            '%(name)s (%(code)s) in addRelationships' % c)
             continue
         else:
             name = c['name']
@@ -374,7 +378,8 @@ def findConcept(cui, sab):
 
     c = c[0]
 
-    return {'sab': c['SAB'], 'code': c['SCUI'] or c['CODE'], 'name': c['STR']}
+    return {'sab': c['SAB'], 'code': c['SCUI'] or c['CODE'], 'name': c['STR'],
+            'supp': c['SUPPRESS'] not in SUPPRESS}
 
 
 def processConcept(cui):
