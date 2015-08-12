@@ -4,7 +4,7 @@
 Creates OBO file from UMLS database tables.
 
 Created on   : 2015-07-18 ( Ergin Soysal )
-Last modified: Aug 11, 2015, Tue 09:19:04 -0500
+Last modified: Aug 12, 2015, Wed 14:33:58 -0500
 """
 import sys
 import argparse
@@ -23,9 +23,9 @@ umls = None
 
 withAltId = False   # generate alt_id keys?
 
-SABS = ['MSH', 'SNOMEDCT_US', 'NCBI', 'FMA', 'GO', 'HGNC']
-SUPPRESS = ['N']
-LAT = ['ENG']
+SABS = []
+SUPPRESS = []
+LAT = []
 SUBTYPES = [
     ('morg', 'Microorganism'),
     ('org', 'Any living organism'),
@@ -107,7 +107,7 @@ def addSynonyms(term, name, cc):
         if withAltId and code not in term['alt_id']:
             term['alt_id'].append(code)
 
-        if not ustr in term['syns']:
+        if ustr not in term['syns']:
             addSynonym(term, c)
             term['syns'].append(ustr)
 
@@ -160,7 +160,7 @@ def addRelationships(term, cui):
                             (cui1, sab))
             continue
         elif c['supp']:
-            logging.warning('Skipping relasionship with suppressible concept '
+            logging.warning('Skipping relasionship to an omitted concept: '
                             '%(name)s (%(code)s) in addRelationships' % c)
             continue
         else:
@@ -436,6 +436,15 @@ def parseArgs():
                         help='Number of CUIS to process for each query')
     parser.add_argument('-s', '--constr', required=True,
                         help='Connection string for sqlalchemy')
+    parser.add_argument('-b', '--sabs', required=True,
+                        help='A comma separated list of names of source '
+                        'terminologies')
+    parser.add_argument('-u', '--suppress', help='A comma separated list of '
+                        'suppress flags for the concepts to be included.',
+                        default='N')
+    parser.add_argument('-l', '--lat', help='A comma separated list of '
+                        'language abbreviations for the concepts to be '
+                        'included', default='ENG')
     parser.add_argument('-a', '--alt-id', action='store_true', required=False,
                         default=False, help='Generate alt_id\'s')
 
@@ -457,6 +466,11 @@ if __name__ == '__main__':
     else:
         level = logging.DEBUG
         print "Logging in DEBUG mode"
+
+    SABS = [sab.strip() for sab in args.sabs.split(',')]
+    SUPPRESS = [supp.strip() for supp in args.suppress.split(',')]
+    LAT = [lat.strip() for lat in args.lat.split(',')]
+    withAltId = args.alt_id
 
     logging.basicConfig(filename='generateOBO.log',
                         format='%(levelname)s:%(message)s',
