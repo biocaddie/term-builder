@@ -6,11 +6,12 @@
     UMLS classes to process UMLS terms
 
     Created on   : 2015-04-30 ( esoysal@gmail.com )
-    Last modified: Aug 07, 2015, Fri 20:35:04 -0500
+    Last modified: Aug 14, 2015, Fri 12:04:14 -0500
 """
 
 from sqlalchemy import select, and_
 from sqlalchemy import distinct
+from sqlalchemy.sql.expression import alias
 from .term import TermTable
 
 
@@ -150,12 +151,17 @@ class UMLS(TermTable):
         awh = self._attrs(attr, table.c)
         where.extend(awh)
 
-        s = select([distinct(table.c.CUI)]).where(and_(*where)) \
-            .limit(limit).offset(offset).order_by(table.c.AUI)
+        s = select([table.c.CUI]).where(and_(*where))
+            # .limit(limit).offset(offset) #.order_by(table.c.AUI)
 
         if 'sabOrder' in attr:
             sabOrder = self._valCase(attr['sabOrder'], table.c.SAB)
             s = s.order_by(sabOrder)
+
+        a = alias(s, 'cuis')
+        s = select([distinct(a.c.CUI)]) \
+            .limit(limit).offset(offset) #.order_by(table.c.AUI)
+
 
         return self._exec1(s)
 
