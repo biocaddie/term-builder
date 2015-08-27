@@ -4,7 +4,7 @@
 Creates OBO file from UMLS database tables.
 
 Created on   : 2015-07-18 ( Ergin Soysal )
-Last modified: Aug 12, 2015, Wed 14:33:58 -0500
+Last modified: Aug 21, 2015, Fri 15:28:45 -0500
 """
 import sys
 import argparse
@@ -115,13 +115,19 @@ def addSynonyms(term, name, cc):
 
 
 def addXref(term, c):
-    xref = makeCode(c['SAB'], c['SCUI'] or c['CODE']) + ' ! '
+    xref = makeCode(c['SAB'], c['SCUI'] or c['CODE']) + ' '
 
     for xr in term['xref']:
         if xr.startswith(xref):
             return
 
-    term['xref'].append(xref + c['STR'])
+    name = c['STR']
+    if ',' in name:
+        name = '"%s"' % escapeStr(name)
+    else:
+        name = '! %s' % name
+
+    term['xref'].append(xref + name)
 
 
 def addRelInNotExists(term, type, code, sab, name=''):
@@ -314,7 +320,11 @@ def makeCode(sab, code):
 def writeTerm(f, term):
     f.write('[Term]\n')
     f.write('id: %s\n' % term['id'])
-    f.write('name: %s\n' % term['name'])
+
+    if ',' in term['name']:
+        f.write('name: "%s"\n' % escapeStr(term['name']))
+    else:
+        f.write('name: %s\n' % term['name'])
 
     for alt_id in term['alt_id']:
         f.write('alt_id: %s\n' % alt_id)
@@ -396,11 +406,11 @@ def processConcept(cui):
     return term
 
 
-def processConcepts(fname, offset, count):
+def processConcepts(fname, offset, limit):
     f = writeOBO(fname)
     hasMore = True
     while hasMore:
-        res = umls.cuis(offset, count, sab=SABS, suppress=SUPPRESS, lat=LAT)
+        res = umls.cuis(offset, limit, sab=SABS, suppress=SUPPRESS, lat=LAT)
         print offset, "received", len(res)
         i = 1
         for cui in res:
@@ -413,7 +423,7 @@ def processConcepts(fname, offset, count):
         print
         gc.collect()
 
-        hasMore = len(res) == count
+        hasMore = len(res) > 0
         offset = offset + len(res)
 
     writeTypes(f)
@@ -471,6 +481,11 @@ if __name__ == '__main__':
     SUPPRESS = [supp.strip() for supp in args.suppress.split(',')]
     LAT = [lat.strip() for lat in args.lat.split(',')]
     withAltId = args.alt_id
+
+    print "Sources       :", args.sabs
+    print "Concept status:", args.suppress
+    print "Language      :", args.lat
+    print "Output to     :", args.filename
 
     logging.basicConfig(filename='generateOBO.log',
                         format='%(levelname)s:%(message)s',
