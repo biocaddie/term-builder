@@ -4,12 +4,12 @@ A collection of various utilities aiming ontology management and UMLS connectivi
 
   * `genOBO.sh` It generates an subset of UMLS in OBO format, using `generateOBO.py`. Please, type
   
-      python2 ./generateOBO.py --help
+        python2 ./generateOBO.py --help
       
      for complete application options.
      
   * `esIndex.py`: Generates an UMLS index on Elasticsearch. Please, type
   
-      python2 ./esIndex.py --help
+        python2 ./esIndex.py --help
       
      for complete application options. A sample configuration set is available in `esIndex.txt`.
